@@ -16,4 +16,4 @@ x3
 .env
 
 # gdb dirs
-./gendata.dSYM/*
+*.dSYM
