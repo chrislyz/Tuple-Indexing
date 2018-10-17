@@ -10,6 +10,7 @@
 #include "page.h"
 #include "tuple.h"
 #include "tsig.h"
+#include "psig.h"
 #include "bits.h"
 #include "hash.h"
 // open a file with a specified suffix
@@ -119,6 +120,7 @@ PageID addToRelation(Reln r, Tuple t)
 	Page p;  PageID pid;
 	RelnParams *rp = &(r->params);
 	
+	Bool new = FALSE;
 	// add tuple to last page
 	pid = rp->npages-1;
 	p = getPage(r->dataf, pid);
@@ -127,6 +129,7 @@ PageID addToRelation(Reln r, Tuple t)
 		addPage(r->dataf);
 		rp->npages++;
 		pid++;
+		new = TRUE;
 		free(p);
 		p = newPage();
 		if (p == NULL) return NO_PAGE;
@@ -155,6 +158,32 @@ PageID addToRelation(Reln r, Tuple t)
 
 	// compute page signature and add to psigf
 	//TODO
+	Bits psig = makePageSig(r, t);
+	Page pgp; PageID pgpid;
+	pgpid = nPsigPages(r)-1;
+	pgp = getPage(psigFile(r), pgpid);
+
+	if (pageNitems(pgp) == maxPsigsPP(r)) {
+		addPage(psigFile(r));
+		rp->psigNpages++;
+		pgpid++;
+		free(pgp);
+		pgp = newPage();
+		if (pgp == NULL) return NO_PAGE;
+	}
+
+	Bits ppsig = newBits(psigBits(r));
+	Page ppgp = getPage(psigFile(r), pgpid);
+	getBits(ppgp, pid, ppsig);
+	printf("prev:\n"); showBits(ppsig); printf("\n");
+	printf("curr:\n"); showBits(psig); printf("\n");
+	orBits(psig, ppsig);
+	free(ppgp);
+
+	putBits(pgp, pid, psig);
+	if (!new) decOneItem(pgp);
+	rp->npsigs = pid + 1;
+	putPage(psigFile(r), pgpid, pgp);
 
 	// use page signature to update bit-slices
 	//TODO

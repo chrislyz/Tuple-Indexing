@@ -153,19 +153,6 @@ void orBits(Bits b1, Bits b2)
 		b1->bitstring[i] = (b1->bitstring[i] | b2->bitstring[i]);
 }
 
-// convert integer to bits representation
-
-Bits itob(int i, int nbits)
-{
-	Bits b = newBits(nbits);
-	int  nbytes = iceil(log(i)/log(2)+1, 8);
-	int  j;
-	for (j = nbytes-1; j >= 0; j--)
-		b->bitstring[j] = (i >> (j * 8));
-
-	return b;
-}
-
 // check if bits representation is nought
 
 Bool isZero(Bits b)
@@ -186,7 +173,6 @@ void getBits(Page p, Offset pos, Bits b)
 {
 	//TODO
 	assert(p != NULL && b != NULL);
-	assert(pos <= pageNitems(p));
 
 	int  size  = b->nbytes;
 	Byte *addr = addrInPage(p, pos, size);
@@ -204,12 +190,12 @@ void putBits(Page p, Offset pos, Bits b)
 {
 	//TODO
 	assert(p != NULL && b != NULL);
-	assert(pos <= pageNitems(p));
 
 	int  size  = b->nbytes;
 	Byte *addr = addrInPage(p, pos, size);
 	memcpy(addr, b->bitstring, size);
 	addOneItem(p);
+
 }
 
 // show Bits on stdout
@@ -229,4 +215,17 @@ void showBits(Bits b)
 				putchar('0');
 		}
 	}
+}
+
+void showBytes(Bits b)
+{
+	for (int i = b->nbytes-1; i >= 0; i--) {
+		printf("%d ", b->bitstring[i]);
+	}
+	printf("\n");
+}
+
+int bitNbytes(Bits b)
+{
+	return b->nbytes;
 }

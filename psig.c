@@ -6,18 +6,69 @@
 #include "reln.h"
 #include "query.h"
 #include "psig.h"
+#include "hash.h"
+
+// helper function that generates codeword for tuple signatures
+
+static Bits codeword(char *attr, int m, int k)
+{
+	Count nbits = 0;
+	Bits cword  = newBits(m);
+	srandom(hash_any(attr, strlen(attr)));
+	while (nbits < k) {
+		int i = random() % m;
+		if (!bitIsSet(cword, i)) {
+			setBit(cword, i);
+			nbits++;
+		}
+	}
+
+	return cword;
+}
 
 Bits makePageSig(Reln r, Tuple t)
 {
 	assert(r != NULL && t != NULL);
 	//TODO
-	return NULL; // remove this
+	Bits psig = newBits(psigBits(r));
+	char **attrs = tupleVals(r, t);
+	int  i;
+
+	for (i = 0; i < nAttrs(r); i++) {
+		if (attrs[i][0] == '?')		// ? makes no contribution to descriptor
+			continue;
+		Bits cw = codeword(attrs[i], psigBits(r), codeBits(r));
+		orBits(psig, cw);
+		freeBits(cw);
+	}
+	freeVals(attrs, nAttrs(r));
+
+	return psig;
 }
 
 void findPagesUsingPageSigs(Query q)
 {
 	assert(q != NULL);
 	//TODO
-	setAllBits(q->pages); // remove this
+
+	Bits qsig = makePageSig(q->rel, q->qstring);
+	unsetAllBits(q->pages);
+
+	Offset pos;
+	Page pgp;
+	Bits psig  = newBits(8 * psigsize(q->rel));
+	Bits pages = newBits(nPages(q->rel));
+
+	pgp = getPage(psigFile(q->rel), 0);
+	for (pos = 0; pos < nPsigs(q->rel); pos++) {
+		getBits(pgp, pos, psig);
+		// showBits(qsig); printf("\n");
+		// showBits(psig); printf("\n\n");
+		if (isSubset(qsig, psig)) {
+			setBit(pages, pos);
+		}
+	}
+
+	q->pages = pages;
 }
 

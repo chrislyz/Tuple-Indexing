@@ -82,4 +82,4 @@ Byte *addrInPage(Page p, int off, int size)
 
 Count pageNitems(Page p) { return p->nitems; }
 void  addOneItem(Page p) { p->nitems++; }
-
+void  decOneItem(Page p) { p->nitems--; }

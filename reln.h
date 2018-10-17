@@ -77,6 +77,7 @@ void relationStats(Reln r);
 
 #define nPsigPages(REL)  (REL)->params.psigNpages
 #define nPsigs(REL)      (REL)->params.npsigs
+#define psigsize(REL)	 (REL)->params.psigSize
 #define maxPsigsPP(REL)  (REL)->params.psigPP
 
 #define nBsigPages(REL)  (REL)->params.bsigNpages

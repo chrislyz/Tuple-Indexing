@@ -21,10 +21,11 @@ void unsetBit(Bits, int);
 void unsetAllBits(Bits);
 void andBits(Bits, Bits);
 void orBits(Bits, Bits);
-Bits itob(int, int);
 Bool isZero(Bits);
 void getBits(Page, Offset, Bits);
 void putBits(Page, Offset, Bits);
 void showBits(Bits);
+void showBytes(Bits);
+int  bitNbytes(Bits);
 
 #endif

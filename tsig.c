@@ -9,6 +9,7 @@
 #include "reln.h"
 #include "hash.h"
 #include "bits.h"
+#include "util.h"
 
 // helper function that generates codeword for tuple signatures
 
@@ -36,7 +37,7 @@ Bits makeTupleSig(Reln r, Tuple t)
 	//TODO
 	Bits tsig = newBits(tsigBits(r));
 	char **attrs = tupleVals(r, t);
-	int i;
+	int  i;
 
 	for (i = 0; i < nAttrs(r); i++) {
 		if (attrs[i][0] == '?')		// ? makes no contribution to descriptor
@@ -60,20 +61,19 @@ void findPagesUsingTupSigs(Query q)
 	Bits qsig = makeTupleSig(q->rel, q->qstring);
 	unsetAllBits(q->pages);
 
-	PageID tgpid;
 	Offset pos;
 	Page tgp;
 	Bits tsig  = newBits(8 * tsigsize(q->rel));
 	Bits pages = newBits(nPages(q->rel));
 
-	for (tgpid = 0; tgpid < nTsigPages(q->rel); tgpid++) {
-		tgp = getPage(tsigFile(q->rel), tgpid);
-		for (pos = 0; pos < nTsigs(q->rel); pos++) {
-			getBits(tgp, pos, tsig);
-			showBits(qsig); printf("\n");
-			showBits(tsig); printf("\n\n");
-			if (isSubset(qsig, tsig))
-				setBit(pages, tgpid);
+	tgp = getPage(tsigFile(q->rel), 0);
+	for (pos = 0; pos < nTsigs(q->rel); pos++) {
+		getBits(tgp, pos, tsig);
+		printf("%d\n", pos);
+		showBits(qsig); printf("\n");
+		showBits(tsig); printf("\n\n");
+		if (isSubset(qsig, tsig)) {
+			setBit(pages, pos/q->rel->params.tupPP);
 		}
 	}
 

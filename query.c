@@ -56,7 +56,7 @@ void scanAndDisplayMatchingTuples(Query q)
 {
 	assert(q != NULL);
 	//TODO
-	q->curtup = 1;
+	q->curtup = 0;
 	for ( ; q->curpage < nPages(q->rel); q->curpage++)
 	{
 		if (!bitIsSet(q->pages, q->curpage))
@@ -72,11 +72,12 @@ void scanAndDisplayMatchingTuples(Query q)
 			Tuple t   = malloc(tupSize(q->rel)*sizeof(char) + 1);
 			memcpy(t, all, tupSize(q->rel));
 			t[tupSize(q->rel)] = '\0';
-
+			if (*t == '\0') break;
 			if (tupleMatch(q->rel, t, q->qstring)) {
 				ntrue++;
 				showTuple(q->rel, t);
 			}
+
 			q->curtup++;
 			free(t);
 
