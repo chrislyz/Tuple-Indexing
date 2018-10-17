@@ -18,14 +18,9 @@ static Bits codeword(char *attr, int m, int k)
 	Bits cword  = newBits(m);
 	srandom(hash_any(attr, strlen(attr)));
 	while (nbits < k) {
-		int  i  = random() % m;
-		Bits bi = newBits(m);
-		Bits cond = newBits(m);		
-		setBit(bi, i);
-		setBit(cond, i);
-		andBits(cond, cword);
-		if (isZero(cond)) {
-			orBits(cword, bi);
+		int i = random() % m;
+		if (!bitIsSet(cword, i)) {
+			setBit(cword, i);
 			nbits++;
 		}
 	}
@@ -40,12 +35,17 @@ Bits makeTupleSig(Reln r, Tuple t)
 	assert(r != NULL && t != NULL);
 	//TODO
 	Bits tsig = newBits(tsigBits(r));
-	char *w;
+	char **attrs = tupleVals(r, t);
+	int i;
 
-	for (w = strtok(t, ","); w != NULL; w = strtok(NULL,",")) {
-		Bits cw = codeword(w, tsigBits(r), codeBits(r));
+	for (i = 0; i < nAttrs(r); i++) {
+		if (attrs[i][0] == '?')		// ? makes no contribution to descriptor
+			continue;
+		Bits cw = codeword(attrs[i], tsigBits(r), codeBits(r));
 		orBits(tsig, cw);
+		freeBits(cw);
 	}
+	freeVals(attrs, nAttrs(r));
 
 	return tsig;
 }
@@ -72,7 +72,7 @@ void findPagesUsingTupSigs(Query q)
 			getBits(tgp, pos, tsig);
 			showBits(qsig); printf("\n");
 			showBits(tsig); printf("\n\n");
-			if (isSubset(tsig, qsig))
+			if (isSubset(qsig, tsig))
 				setBit(pages, tgpid);
 		}
 	}
