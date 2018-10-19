@@ -63,16 +63,20 @@ void findPagesUsingPageSigs(Query q)
 
 	for (pgpid = 0; pgpid < nPsigPages(q->rel); pgpid++) {
 		pgp = getPage(psigFile(q->rel), pgpid);
+		printf("%d\n", pageNitems(pgp));
 		for (pos = 0; pos < pageNitems(pgp); pos++, total++) {
 			getBits(pgp, pos, psig);
-			// showBits(qsig); printf("\n");
-			// showBits(psig); printf("\n\n");
 			if (isSubset(qsig, psig)) {
 				setBit(pages, total);
+
 			}
 		}
 	}
 
 	q->pages = pages;
+
+	// The printf below is primarily for debugging
+	// Remove it before submitting this function
+	printf("Matched Pages:"); showBits(q->pages); putchar('\n');
 }
 
