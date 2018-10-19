@@ -63,7 +63,6 @@ void findPagesUsingPageSigs(Query q)
 
 	for (pgpid = 0; pgpid < nPsigPages(q->rel); pgpid++) {
 		pgp = getPage(psigFile(q->rel), pgpid);
-		printf("%d\n", pageNitems(pgp));
 		for (pos = 0; pos < pageNitems(pgp); pos++, total++) {
 			getBits(pgp, pos, psig);
 			if (isSubset(qsig, psig)) {

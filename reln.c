@@ -179,9 +179,11 @@ PageID addToRelation(Reln r, Tuple t)
 	Page pgp; PageID pgpid;
 	pgpid = nPsigPages(r)-1;
 	pgp = getPage(psigFile(r), pgpid);
+	Offset off = pid % maxPsigsPP(r);
+	int nPsigPageNeed = pid / maxPsigsPP(r) + 1;
 	if (pageNitems(pgp) == 0 && pid == 0) new = TRUE;
 
-	if (pid == maxPsigsPP(r)) {
+	if (nPsigPageNeed > nPsigPages(r)) {
 		addPage(psigFile(r));
 		rp->psigNpages++;
 		pgpid++;
@@ -189,13 +191,20 @@ PageID addToRelation(Reln r, Tuple t)
 		pgp = newPage();
 		if (pgp == NULL) return NO_PAGE;
 	}
+	
 	Bits ppsig = newBits(psigBits(r));
-	getBits(pgp, pid, ppsig);
+	getBits(pgp, off, ppsig);
 	orBits(psig, ppsig);
-	putBits(pgp, pid, psig);
+
+	putBits(pgp, off, psig);
+	if (pgpid == 1) {
+		printf("%d\n", pageNitems(pgp));
+	}
+	printf("id: %d\n", pgpid);
 	if (!new) decOneItem(pgp);
 	rp->npsigs = pid + 1;
 	putPage(psigFile(r), pgpid, pgp);
+	
 	// use page signature to update bit-slices
 	// TODO
 	// Page bgp;
