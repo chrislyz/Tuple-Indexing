@@ -61,7 +61,7 @@ void scanAndDisplayMatchingTuples(Query q)
 	{
 		if (!bitIsSet(q->pages, q->curpage))
 			continue;
-
+		q->ntuppages++;
 		Count ntrue = 0;
 		Page p = getPage(dataFile(q->rel), q->curpage);
 		int i;
@@ -89,7 +89,7 @@ void scanAndDisplayMatchingTuples(Query q)
 			q->nfalse++;
 	}
 
-	q->ntuppages = q->curpage;
+	
 	q->ntuples = q->curtup;
 }
 

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+make
+rm R.*
+./create R 5000 4 1000
+./gendata 3 4 | ./insert R

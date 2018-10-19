@@ -54,18 +54,22 @@ void findPagesUsingPageSigs(Query q)
 	Bits qsig = makePageSig(q->rel, q->qstring);
 	unsetAllBits(q->pages);
 
+	int total = 0;
 	Offset pos;
 	Page pgp;
+	PageID pgpid;
 	Bits psig  = newBits(8 * psigsize(q->rel));
 	Bits pages = newBits(nPages(q->rel));
 
-	pgp = getPage(psigFile(q->rel), 0);
-	for (pos = 0; pos < nPsigs(q->rel); pos++) {
-		getBits(pgp, pos, psig);
-		// showBits(qsig); printf("\n");
-		// showBits(psig); printf("\n\n");
-		if (isSubset(qsig, psig)) {
-			setBit(pages, pos);
+	for (pgpid = 0; pgpid < nPsigPages(q->rel); pgpid++) {
+		pgp = getPage(psigFile(q->rel), pgpid);
+		for (pos = 0; pos < pageNitems(pgp); pos++, total++) {
+			getBits(pgp, pos, psig);
+			// showBits(qsig); printf("\n");
+			// showBits(psig); printf("\n\n");
+			if (isSubset(qsig, psig)) {
+				setBit(pages, total);
+			}
 		}
 	}
 

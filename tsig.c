@@ -61,19 +61,21 @@ void findPagesUsingTupSigs(Query q)
 	Bits qsig = makeTupleSig(q->rel, q->qstring);
 	unsetAllBits(q->pages);
 
+	int total = 0;
 	Offset pos;
 	Page tgp;
+	PageID tgpid;
 	Bits tsig  = newBits(8 * tsigsize(q->rel));
 	Bits pages = newBits(nPages(q->rel));
 
-	tgp = getPage(tsigFile(q->rel), 0);
-	for (pos = 0; pos < nTsigs(q->rel); pos++) {
-		getBits(tgp, pos, tsig);
-		printf("%d\n", pos);
-		showBits(qsig); printf("\n");
-		showBits(tsig); printf("\n\n");
-		if (isSubset(qsig, tsig)) {
-			setBit(pages, pos/q->rel->params.tupPP);
+	for (tgpid = 0; tgpid < nTsigPages(q->rel); tgpid++) {
+		tgp = getPage(tsigFile(q->rel), tgpid);
+		for (pos = 0; pos < pageNitems(tgp); pos++, total++) {
+			getBits(tgp, pos, tsig);
+			
+			if (isSubset(qsig, tsig)) {
+				setBit(pages, total/q->rel->params.tupPP);
+			}
 		}
 	}
 

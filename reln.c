@@ -56,10 +56,27 @@ Status newRelation(char *name, Count nattrs, float pF,
 	addPage(r->dataf); p->npages = 1; p->ntups = 0;
 	addPage(r->tsigf); p->tsigNpages = 1; p->ntsigs = 0;
 	addPage(r->psigf); p->psigNpages = 1; p->npsigs = 0;
-	addPage(r->bsigf); p->bsigNpages = 1; p->nbsigs = 0; // replace this
+	// addPage(r->bsigf); p->bsigNpages = 1; p->nbsigs = 0; // replace this
 	// Create a file containing "pm" all-zeroes bit-strings,
     // each of which has length "bm" bits
 	//TODO
+	int i;
+	Page bgp = newPage();
+	PageID bgpid = 0;
+	for (i = 0; i < psigBits(r); i++) {
+		if (pageNitems(bgp) == maxBsigsPP(r)) {
+			putPage(r->bsigf, bgpid, bgp);
+			bgp = newPage();
+			bgpid++;
+		}
+		Bits bsig = newBits(bsigBits(r));
+		unsetAllBits(bsig);
+		putBits(bgp, i, bsig);
+	}
+	p->bsigNpages = bgpid + 1;
+	p->nbsigs = 0;
+	free(bgp);
+
 	closeRelation(r);
 	return 0;
 }
@@ -186,7 +203,17 @@ PageID addToRelation(Reln r, Tuple t)
 	putPage(psigFile(r), pgpid, pgp);
 
 	// use page signature to update bit-slices
-	//TODO
+	// TODO
+	// Page bgp;
+	// bgp = getPage(bsigFile(r), 0);
+	// Bits bpsig = makePageSig(r, t);
+
+	// int i, j;
+	// for (i = 0; i < psigBits(r); i++) {
+	// 	if (bitIsSet(bpsig, i)) {
+	// 		Byte *addr = addrInPage(bgp, i, )
+	// 	}
+	// }
 
 	return nPages(r)-1;
 }

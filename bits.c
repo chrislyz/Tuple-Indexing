@@ -72,7 +72,7 @@ Bool isSubset(Bits b1, Bits b2)
 		if (!BITMATCH(b1->bitstring[i], b2->bitstring[i]))
 			return FALSE;
 
-	return TRUE; // remove this
+	return TRUE;
 }
 
 // set the bit at position to 1

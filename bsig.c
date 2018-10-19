@@ -6,11 +6,19 @@
 #include "reln.h"
 #include "query.h"
 #include "bsig.h"
+#include "psig.h"
 
 void findPagesUsingBitSlices(Query q)
 {
 	assert(q != NULL);
 	//TODO
-	setAllBits(q->pages); // remove this
+
+	// Bits qsig = makePageSig(q->rel, q->qstring);
+	setAllBits(q->pages);
+
+	// Page bgp;
+	// Bits pages = newBits(nPages(q->rel));
+	// setAllBits(pages);
+	// bgp = getPage(bsigFile(q->rel), 0);
 }
 
