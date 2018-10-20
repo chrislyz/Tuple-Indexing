@@ -7,7 +7,6 @@
 // Written by John Shepherd, September 2018
 
 #include <assert.h>
-#include <math.h>
 #include "defs.h"
 #include "bits.h"
 #include "page.h"
@@ -15,6 +14,14 @@
 
 #define BITMASK(byte, mask)		(byte & mask ? 1 : 0)
 #define BITMATCH(byte1, byte2)	((byte1 & byte2) == byte1 ? 1 : 0)
+
+int my_pow(int x, int nth_bit)
+{
+  int i, num = 1;
+  for(i = 0; i <= nth_bit; i ++)
+    num *= x;
+  return num; 
+}
 
 typedef struct _BitsRep {
 	Count  nbits;		  // how many bits
@@ -88,7 +95,7 @@ void setBit(Bits b, int position)
 	if (bitIsSet(b, position))
 		return;
 	else
-		b->bitstring[nth_byte] += (int) pow(2, nth_bit);
+		b->bitstring[nth_byte] += (int) my_pow(2, nth_bit);
 }
 
 // set all bits to 1
@@ -113,7 +120,7 @@ void unsetBit(Bits b, int position)
 	Count nth_bit  = position % 8;
 
 	if (bitIsSet(b, position))
-		b->bitstring[nth_byte] -= (int) pow(2, nth_bit);
+		b->bitstring[nth_byte] -= (int) my_pow(2, nth_bit);
 	else
 		return;
 }
