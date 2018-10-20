@@ -11,6 +11,7 @@ typedef struct _BitsRep *Bits;
 #include "defs.h"
 #include "page.h"
 
+int my_pow(int, int);
 Bits newBits(int);
 void freeBits(Bits);
 Bool bitIsSet(Bits, int);
