@@ -18,7 +18,7 @@
 int my_pow(int x, int nth_bit)
 {
   int i, num = 1;
-  for(i = 0; i <= nth_bit; i ++)
+  for(i = 0; i < nth_bit; i ++)
     num *= x;
   return num; 
 }
