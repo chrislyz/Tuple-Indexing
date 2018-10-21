@@ -46,9 +46,10 @@ void findPagesUsingBitSlices(Query q)
 				if (!bitIsSet(b, j))
 					unsetBit(pages, j);
 			}
+			free(b);
 		}
 	}
-	
+
 	for (i = 0; i < bsigBits(q->rel)*2; i++) {
 		if (pagearr[i] == -1)
 			break;
@@ -65,12 +66,9 @@ void findPagesUsingBitSlices(Query q)
 		q->nsigpages++;
 
 	}
+	free(pagearr);
 
 	q->pages = pages;
-
-	// The printf below is primarily for debugging
-	// Remove it before submitting this function
-	printf("Matched Pages:"); showBits(q->pages); putchar('\n');
-
+	showBits(q->pages); printf("\n");
 }
 

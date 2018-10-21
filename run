@@ -3,4 +3,4 @@
 make
 rm R.*
 ./create R 5000 4 1000
-./gendata 500 4 | ./insert R
+./gendata 5000 4 | ./insert R
