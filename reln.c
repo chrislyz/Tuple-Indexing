@@ -60,22 +60,37 @@ Status newRelation(char *name, Count nattrs, float pF,
 	// Create a file containing "pm" all-zeroes bit-strings,
     // each of which has length "bm" bits
 	//TODO
-	int i;
-	Page bgp = newPage();
-	PageID bgpid = 0;
-	for (i = 0; i < psigBits(r); i++) {
-		if (pageNitems(bgp) == maxBsigsPP(r)) {
-			putPage(r->bsigf, bgpid, bgp);
-			bgp = newPage();
-			bgpid++;
+	p->bsigNpages = 0; p->nbsigs = 0;
+	Count nbpages = psigBits(r) / maxBsigsPP(r);
+	Offset off = psigBits(r) % maxBsigsPP(r);
+	int i, j;
+	int maxcond;
+
+	// if saving disk space is possible
+	for (i = 0; i <= nbpages; i++) {
+		addPage(r->bsigf);
+		Page bpage = newPage();
+		if (off != 0) {
+			if (i != nbpages)
+				maxcond = maxBsigsPP(r);
+			else
+				maxcond = off;
 		}
-		Bits bsig = newBits(bsigBits(r));
-		unsetAllBits(bsig);
-		putBits(bgp, i, bsig);
+		else {
+			if (nbpages == 0)
+				maxcond = off;
+			else
+				maxcond = maxBsigsPP(r);
+		}
+
+		for (j = 0; j < maxcond; j++) {
+			Bits b = newBits(bsigBits(r));
+			putBits(bpage, j, b);
+		}
+		setPageNitems(bpage, maxcond);
+		putPage(r->bsigf, i, bpage);
+		p->bsigNpages++;
 	}
-	p->bsigNpages = bgpid + 1;
-	p->nbsigs = 0;
-	free(bgp);
 
 	closeRelation(r);
 	return 0;
@@ -197,26 +212,32 @@ PageID addToRelation(Reln r, Tuple t)
 	orBits(psig, ppsig);
 
 	putBits(pgp, off, psig);
-	if (pgpid == 1) {
-		printf("%d\n", pageNitems(pgp));
-	}
-	printf("id: %d\n", pgpid);
 	if (!new) decOneItem(pgp);
 	rp->npsigs = pid + 1;
 	putPage(psigFile(r), pgpid, pgp);
 	
 	// use page signature to update bit-slices
 	// TODO
-	// Page bgp;
-	// bgp = getPage(bsigFile(r), 0);
-	// Bits bpsig = makePageSig(r, t);
+	Page bgp;
+	Bits bpsig = makePageSig(r, t);
+	Count nthpage;
+	Offset bpoff;
+	int i;
 
-	// int i, j;
-	// for (i = 0; i < psigBits(r); i++) {
-	// 	if (bitIsSet(bpsig, i)) {
-	// 		Byte *addr = addrInPage(bgp, i, )
-	// 	}
-	// }
+	for (i = 0; i < psigBits(r); i++) {
+		if (bitIsSet(bpsig, i)) {
+			nthpage = i / maxBsigsPP(r);
+			bpoff = i % maxBsigsPP(r);
+			bgp = getPage(bsigFile(r), nthpage);
+			Bits b = newBits(bsigBits(r));
+			getBits(bgp, bpoff, b);
+			setBit(b, pid);
+			putBits(bgp, bpoff, b);
+			decOneItem(bgp);	// pageNitem written in newRelation()
+			putPage(bsigFile(r), nthpage, bgp);
+			free(b);
+		}
+	}
 
 	return nPages(r)-1;
 }

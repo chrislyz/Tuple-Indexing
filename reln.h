@@ -82,6 +82,7 @@ void relationStats(Reln r);
 
 #define nBsigPages(REL)  (REL)->params.bsigNpages
 #define nBsigs(REL)      (REL)->params.nbsigs
+#define bsigsize(REL)	 (REL)->params.bsigSize
 #define maxBsigsPP(REL)  (REL)->params.bsigPP
 
 #define codeBits(REL)    (REL)->params.tk

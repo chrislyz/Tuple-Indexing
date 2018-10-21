@@ -18,6 +18,7 @@ Page getPage(File, PageID);
 Status putPage(File, PageID, Page);
 Byte *addrInPage(Page, int, int);
 Count pageNitems(Page);
+void  setPageNitems(Page, int);
 void  addOneItem(Page);
 void  decOneItem(Page);
 

@@ -29,4 +29,7 @@ void showBits(Bits);
 void showBytes(Bits);
 int  bitNbytes(Bits);
 
+// debug getter
+int  bitNbits(Bits);
+
 #endif

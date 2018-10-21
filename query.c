@@ -89,7 +89,6 @@ void scanAndDisplayMatchingTuples(Query q)
 			q->nfalse++;
 	}
 
-	
 	q->ntuples = q->curtup;
 }
 

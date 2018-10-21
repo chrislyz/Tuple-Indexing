@@ -236,3 +236,8 @@ int bitNbytes(Bits b)
 {
 	return b->nbytes;
 }
+
+int bitNbits(Bits b)
+{
+	return b->nbits;
+}

@@ -53,7 +53,6 @@ void findPagesUsingPageSigs(Query q)
 
 	Bits qsig = makePageSig(q->rel, q->qstring);
 	unsetAllBits(q->pages);
-
 	int total = 0;
 	Offset pos;
 	Page pgp;
