@@ -6,25 +6,38 @@
 #include "reln.h"
 #include "query.h"
 #include "bsig.h"
-#include "psig.h"
+#include "psig.h"	// for calling makePageSig()
 
 void findPagesUsingBitSlices(Query q)
 {
 	assert(q != NULL);
 	//TODO
+	
+	Bits qsig = makePageSig(q->rel, q->qstring);
 
 	Count nthpage;
 	Offset bpoff;
-	Bits qsig = makePageSig(q->rel, q->qstring);
+	int *pagearr = malloc(bsigBits(q->rel)*2*sizeof(int));
+	memset(pagearr, -1, 100*sizeof(int));	
 	Page bgp;
-	Count nbits = (nPages(q->rel) / 8 + 1) * 8;
+	Count nbits;
+
+	if (nPages(q->rel) % 8 != 0)
+		nbits = (nPages(q->rel) / 8 + 1) * 8;
+	else
+		nbits = nPages(q->rel);
 	Bits pages = newBits(nbits);
 	setAllBits(pages);
-
 	int i, j;
+	int idx = 0;
+	Bool isRepeat = FALSE;
+
 	for (i = 0; i < psigBits(q->rel); i++) {
 		if (bitIsSet(qsig, i)) {
+			q->nsigs++;
 			nthpage = i / maxBsigsPP(q->rel);
+			pagearr[idx] = nthpage;
+			idx++;
 			bpoff = i % maxBsigsPP(q->rel);
 			bgp = getPage(bsigFile(q->rel), nthpage);
 			Bits b = newBits(bsigBits(q->rel));
@@ -36,6 +49,23 @@ void findPagesUsingBitSlices(Query q)
 		}
 	}
 	
+	for (i = 0; i < bsigBits(q->rel)*2; i++) {
+		if (pagearr[i] == -1)
+			break;
+		for (j = 0; j < i; j++) {
+			if (pagearr[j] == pagearr[i]) {
+				isRepeat = TRUE;
+				break;
+			}
+		}
+		if (isRepeat) {
+			isRepeat = FALSE;
+			continue;
+		}
+		q->nsigpages++;
+
+	}
+
 	q->pages = pages;
 
 	// The printf below is primarily for debugging

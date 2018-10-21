@@ -238,6 +238,7 @@ PageID addToRelation(Reln r, Tuple t)
 			free(b);
 		}
 	}
+	rp->nbsigs = psigBits(r);
 
 	return nPages(r)-1;
 }

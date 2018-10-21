@@ -224,20 +224,7 @@ void showBits(Bits b)
 	}
 }
 
-void showBytes(Bits b)
-{
-	for (int i = b->nbytes-1; i >= 0; i--) {
-		printf("%d ", b->bitstring[i]);
-	}
-	printf("\n");
-}
+// manipulate bits rep info
 
-int bitNbytes(Bits b)
-{
-	return b->nbytes;
-}
-
-int bitNbits(Bits b)
-{
-	return b->nbits;
-}
+int bitNbytes(Bits b) { return b->nbytes; }
+int bitNbits(Bits b)  { return b->nbits;  }

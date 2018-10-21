@@ -26,10 +26,7 @@ Bool isZero(Bits);
 void getBits(Page, Offset, Bits);
 void putBits(Page, Offset, Bits);
 void showBits(Bits);
-void showBytes(Bits);
-int  bitNbytes(Bits);
-
-// debug getter
 int  bitNbits(Bits);
+int  bitNbytes(Bits);
 
 #endif

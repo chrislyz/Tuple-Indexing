@@ -70,9 +70,10 @@ void findPagesUsingTupSigs(Query q)
 
 	for (tgpid = 0; tgpid < nTsigPages(q->rel); tgpid++) {
 		tgp = getPage(tsigFile(q->rel), tgpid);
+		q->nsigpages++;
 		for (pos = 0; pos < pageNitems(tgp); pos++, total++) {
 			getBits(tgp, pos, tsig);
-			
+			q->nsigs++;
 			if (isSubset(qsig, tsig)) {
 				setBit(pages, total/q->rel->params.tupPP);
 			}
