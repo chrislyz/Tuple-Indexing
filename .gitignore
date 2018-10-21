@@ -20,7 +20,7 @@ chvec*
 pages.c
 
 # dir
-./submit/
+/submit
 
 # envirmental variable
 .env
